@@ -9,7 +9,8 @@ def get_coordinates(image_path):
     original_image = image
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     edges = cv2.Canny(gray, 50, 200)
-    contours, hierarchy = cv2.findContours(edges.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    contours, hierarchy = cv2.findContours(
+        edges.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     sorted_contours = sorted(contours, key=cv2.contourArea, reverse=False)
     item = sorted_contours[0]
     M = cv2.moments(item)
@@ -23,7 +24,7 @@ def get_coordinates(image_path):
     ycoordinate2 = y + h
     ycoordinate_center = int(M['m01']/M['m00'])
 
-    return (xcoordinate1,ycoordinate1, xcoordinate2, ycoordinate2, xcoordinate_center, ycoordinate_center)
+    return (xcoordinate1, ycoordinate1, xcoordinate2, ycoordinate2, xcoordinate_center, ycoordinate_center)
 
 
 def overlay_images(image_1, image_2):
@@ -34,8 +35,10 @@ def overlay_images(image_1, image_2):
 
 
 def direction_of_movement(image_1, image_2):
-    img1_x1, img1_y1, img1_x2, img1_y2, img1_center_x, img1_center_y = get_coordinates(image_1)
-    img2_x1, img2_y1, img2_x2, img2_y2, img2_center_x, img2_center_y = get_coordinates(image_2)
+    img1_x1, img1_y1, img1_x2, img1_y2, img1_center_x, img1_center_y = get_coordinates(
+        image_1)
+    img2_x1, img2_y1, img2_x2, img2_y2, img2_center_x, img2_center_y = get_coordinates(
+        image_2)
     d_y = (img2_y1 - img1_y1)
     d_x = (img2_x1 - img1_x1)
 
@@ -66,7 +69,8 @@ def direction_of_movement(image_1, image_2):
 
 
 def show_images(image_1, image_2):
-    alpha, degrees_alpha, img1_center_x, img1_center_y, img2_center_x, img2_center_y = direction_of_movement(image_1, image_2)
+    alpha, degrees_alpha, img1_center_x, img1_center_y, img2_center_x, img2_center_y = direction_of_movement(
+        image_1, image_2)
     fig = plt.figure()
     ax = fig.add_subplot()
     fig.subplots_adjust(top=0.78)
@@ -89,5 +93,4 @@ def show_images(image_1, image_2):
 
 
 if __name__ == '__main__':
-    show_images(img_2, img_7)
-
+    show_images(img_1, img_8)
