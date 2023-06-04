@@ -1,8 +1,0 @@
-img_1 = r'test_img\img_1.png'
-img_2 = r'test_img\img_2.png'
-img_3 = r'test_img\img_3.png'
-img_4 = r'test_img\img_4.png'
-img_5 = r'test_img\img_5.png'
-img_6 = r'test_img\img_6.png'
-img_7 = r'test_img\img_7.png'
-img_8 = r'test_img\img_8.png'

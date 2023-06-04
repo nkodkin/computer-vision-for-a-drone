@@ -1,96 +1,68 @@
-import cv2
-import math
+import tkinter as tk
+from PIL import Image, ImageTk, ImageDraw
+import random
+from GenerateSquares import generate_white_image, draw_random_square
+from AnalyseImages import show_images
 import matplotlib.pyplot as plt
-from file import *
 
 
-def get_coordinates(image_path):
-    image = cv2.imread(image_path)
-    original_image = image
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    edges = cv2.Canny(gray, 50, 200)
-    contours, hierarchy = cv2.findContours(
-        edges.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-    sorted_contours = sorted(contours, key=cv2.contourArea, reverse=False)
-    item = sorted_contours[0]
-    M = cv2.moments(item)
-    x, y, w, h = cv2.boundingRect(item)
+def load_images():
+    images = []
 
-    xcoordinate1 = x
-    xcoordinate2 = x + w
-    xcoordinate_center = int(M['m10']/M['m00'])
-
-    ycoordinate1 = y
-    ycoordinate2 = y + h
-    ycoordinate_center = int(M['m01']/M['m00'])
-
-    return (xcoordinate1, ycoordinate1, xcoordinate2, ycoordinate2, xcoordinate_center, ycoordinate_center)
+    image_paths = ["test_img/image1.png",
+                   "test_img/image2.png", "test_img/image.png"]
+    for path in image_paths:
+        image = Image.open(path)
+        # image = image.resize((200, 200))  # Resize the image
+        photo = ImageTk.PhotoImage(image)
+        images.append(photo)
+    return images
 
 
-def overlay_images(image_1, image_2):
-    img1 = cv2.imread(image_1)
-    img2 = cv2.imread(image_2)
-    dst = cv2.addWeighted(img1, 0.5, img2, 0.5, 0.0)
-    return dst
+def generate_images():
+
+    image1 = generate_white_image(300, 300)
+    draw_random_square(image1, 30)
+    image1.save("test_img/image1.png")
+    photo1 = ImageTk.PhotoImage(image1)
+    image_label1.config(image=photo1)
+    image_label1.image = photo1
+
+    image2 = generate_white_image(300, 300)
+    draw_random_square(image2, 30)
+    image2.save("test_img/image2.png")
+    photo2 = ImageTk.PhotoImage(image2)
+    image_label2.config(image=photo2)
+    image_label2.image = photo2
+
+    show_images("test_img/image1.png", "test_img/image2.png")
+
+    image3 = Image.open("test_img/image.png")
+    photo3 = ImageTk.PhotoImage(image3)
+    image_label3.config(image=photo3)
+    image_label3.image = photo3
 
 
-def direction_of_movement(image_1, image_2):
-    img1_x1, img1_y1, img1_x2, img1_y2, img1_center_x, img1_center_y = get_coordinates(
-        image_1)
-    img2_x1, img2_y1, img2_x2, img2_y2, img2_center_x, img2_center_y = get_coordinates(
-        image_2)
-    d_y = (img2_y1 - img1_y1)
-    d_x = (img2_x1 - img1_x1)
-
-    if d_y <= 0 and d_x > 0:
-        alpha = abs(math.atan(d_y / d_x))
-        degrees_alpha = math.degrees(alpha)
-    elif d_y > 0 and d_x > 0:
-        alpha = abs(math.atan(d_y / d_x))
-        degrees_alpha = math.degrees(alpha)
-        degrees_alpha = 90 + degrees_alpha
-        alpha = math.pi - alpha
-    elif d_y > 0 and d_x < 0:
-        alpha = abs(math.atan(d_y / d_x))
-        degrees_alpha = math.degrees(alpha)
-        degrees_alpha = 180 + degrees_alpha
-        alpha = math.pi + alpha
-    elif d_y <= 0 and d_x < 0:
-        alpha = abs(math.atan(d_y / d_x))
-        degrees_alpha = math.degrees(alpha)
-        degrees_alpha = 270 + degrees_alpha
-        alpha = math.pi*2 + alpha
-    else:
-        alpha = 0
-        degrees_alpha = 0
-
-    print(f'radians_alpha: {alpha}\ndegrees_alpha: {degrees_alpha}')
-    return (alpha, degrees_alpha, img1_center_x, img1_center_y, img2_center_x, img2_center_y)
+window = tk.Tk()
+window.title("Image Viewer")
 
 
-def show_images(image_1, image_2):
-    alpha, degrees_alpha, img1_center_x, img1_center_y, img2_center_x, img2_center_y = direction_of_movement(
-        image_1, image_2)
-    fig = plt.figure()
-    ax = fig.add_subplot()
-    fig.subplots_adjust(top=0.78)
-    fig.suptitle('Moving an object', fontsize=14, fontweight='bold')
-    ax.set_title(f'radians_alpha: {alpha}\ndegrees_alpha: {degrees_alpha}')
-    ax.set_xlabel('x_axis')
-    ax.set_ylabel('y_axis')
-    plt.arrow(img1_center_x,
-              img1_center_y,
-              img2_center_x-img1_center_x,
-              img2_center_y-img1_center_y,
-              width=0.1,
-              shape='full',
-              length_includes_head=True,
-              head_width=4,
-              head_length=4)
-    img = overlay_images(image_1, image_2)
-    plt.imshow(img)
-    plt.show()
+images = load_images()
+
+image_label1 = tk.Label(window, image=images[0])
+image_label1.grid(row=0, column=0, padx=10, pady=10)
+
+image_label2 = tk.Label(window, image=images[1])
+image_label2.grid(row=0, column=1, padx=10, pady=10)
 
 
-if __name__ == '__main__':
-    show_images(img_1, img_8)
+image_label3 = tk.Label(window, image=images[2])
+image_label3.grid(row=1, column=0, columnspan=2, padx=10, pady=10)
+
+generate_button = tk.Button(
+    window, text="Generate Images", command=generate_images)
+generate_button.grid(row=2, column=0, columnspan=2, padx=10, pady=10)
+
+
+window.configure(background="grey")
+window.mainloop()
